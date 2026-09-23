@@ -5,7 +5,6 @@ The Secure Database Backup and Recovery System is a software system designed to 
 The system provides a centralized interface for managing database backups, monitoring backup operations, verifying backup integrity using cryptographic hashing, and restoring databases when required.
 
 Objectives :
-The main objectives of this project are:
 1. Automate the database backup process.
 2. Provide secure storage and management of backup files.
 3. Verify backup integrity using cryptographic hash values.
