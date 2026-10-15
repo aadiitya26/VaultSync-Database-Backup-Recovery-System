@@ -14,7 +14,9 @@ class Config:
 
     BACKUP_DIR = os.getenv("BACKUP_DIR", "backups")
 
-    SECRET_KEY = os.getenv(
-        "SECRET_KEY",
-        "change-this-secret-key"
-    )
+    SECRET_KEY = os.getenv("SECRET_KEY", "change-this-secret-key")
+
+    RETENTION_COUNT = int(os.getenv("RETENTION_COUNT", 3))
+
+    BACKUP_SCHEDULE_HOUR = int(os.getenv("BACKUP_SCHEDULE_HOUR", 2))
+    BACKUP_SCHEDULE_MINUTE = int(os.getenv("BACKUP_SCHEDULE_MINUTE", 0))
