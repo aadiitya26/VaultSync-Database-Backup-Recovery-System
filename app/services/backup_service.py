@@ -7,6 +7,8 @@ from datetime import datetime
 from app.config import Config
 from app.services.database_service import get_database_by_name
 from app.services.integrity_service import calculate_sha256
+from app.services.metadata_service import save_backup_metadata
+from app.services.audit_service import log_action
 
 
 def create_backup(database_name):
