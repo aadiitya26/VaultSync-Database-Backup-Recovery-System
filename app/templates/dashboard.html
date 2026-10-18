@@ -1,0 +1,558 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaultSync Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #1f2937;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 22px 5%;
+        }
+
+        header h1 {
+            margin: 0 0 6px;
+        }
+
+        header p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        header form {
+            margin-top: 14px;
+        }
+
+        header button {
+            margin-left: 12px;
+            padding: 7px 12px;
+            border: 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 28px auto;
+            padding: 0 20px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(200px, 1fr)
+            );
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .card,
+        section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #0f172a0d;
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            margin: 0 0 12px;
+            color: #64748b;
+        }
+
+        .number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            overflow-wrap: anywhere;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .empty {
+            color: #64748b;
+        }
+
+        .flash {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .flash.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .flash.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .register-form {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(180px, 1fr)
+            );
+            gap: 14px;
+            align-items: end;
+        }
+
+        .register-form label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .register-form input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        .register-form button {
+            padding: 11px 16px;
+            border: 0;
+            border-radius: 6px;
+            background: #1d4ed8;
+            color: white;
+            cursor: pointer;
+        }
+
+        .register-form button:hover {
+            background: #1e40af;
+        }
+
+        .action-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            min-width: 180px;
+        }
+
+        .action-form select {
+            max-width: 240px;
+            min-width: 150px;
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .action-form button {
+            padding: 9px 12px;
+            border: 0;
+            border-radius: 6px;
+            background: #1d4ed8;
+            color: white;
+            cursor: pointer;
+        }
+
+        .action-form button.restore-button {
+            background: #15803d;
+        }
+
+        .action-form button:hover {
+            opacity: 0.9;
+        }
+
+        .action-form button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .action-form .confirmation {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .action-note {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .warning {
+            padding: 12px 15px;
+            margin-bottom: 16px;
+            background: #fff7ed;
+            color: #9a3412;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                padding: 0 12px;
+            }
+
+            section {
+                padding: 14px;
+            }
+
+            header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <h1>VaultSync</h1>
+    <p>Secure Database Backup and Recovery System</p>
+
+    <form method="POST" action="{{ url_for('auth.logout') }}">
+        <span>
+            Signed in as {{ session.get('username', 'Administrator') }}
+        </span>
+        <button type="submit">Log out</button>
+    </form>
+</header>
+
+<main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}" role="status">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- Register a database -->
+    <section>
+        <h2>Register Database</h2>
+        <p class="empty">
+            Register an existing MySQL database for VaultSync backups.
+            The application verifies that the database exists first.
+        </p>
+
+        <form
+            class="register-form"
+            method="POST"
+            action="{{ url_for('dashboard.register_database') }}"
+        >
+            <div>
+                <label for="database-name">Database name</label>
+                <input
+                    id="database-name"
+                    type="text"
+                    name="name"
+                    required
+                    maxlength="255"
+                    placeholder="e.g. company_db"
+                >
+            </div>
+
+            <div>
+                <label for="database-host">MySQL host</label>
+                <input
+                    id="database-host"
+                    type="text"
+                    name="host"
+                    required
+                    maxlength="255"
+                    value="localhost"
+                >
+            </div>
+
+            <div>
+                <label for="database-port">MySQL port</label>
+                <input
+                    id="database-port"
+                    type="number"
+                    name="port"
+                    min="1"
+                    max="65535"
+                    required
+                    value="3306"
+                >
+            </div>
+
+            <div>
+                <button type="submit">Validate and Register</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Dashboard summary -->
+    <div class="summary">
+        <div class="card">
+            <h3>Managed Databases</h3>
+            <div class="number">{{ total_databases }}</div>
+        </div>
+
+        <div class="card">
+            <h3>Total Backups</h3>
+            <div class="number">{{ total_backups }}</div>
+        </div>
+
+        <div class="card">
+            <h3>Verified Backups</h3>
+            <div class="number">{{ verified_backups }}</div>
+        </div>
+    </div>
+
+    <!-- Custom backup -->
+    <section>
+        <h2>Custom Backup</h2>
+        <p class="empty">
+            Create a backup immediately without waiting for the scheduled
+            backup. VaultSync saves backup metadata and its SHA-256 hash,
+            records the operation, and applies the retention policy.
+        </p>
+
+        {% if databases %}
+            <form
+                class="action-form"
+                method="POST"
+                action="{{ url_for('dashboard.create_database_backup') }}"
+            >
+                <select name="database_name" required>
+                    <option value="">Select a database</option>
+                    {% for db in databases %}
+                        <option value="{{ db.name }}">{{ db.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Run Backup Now</button>
+            </form>
+        {% else %}
+            <p class="empty">
+                Register a database before creating a custom backup.
+            </p>
+        {% endif %}
+    </section>
+
+    <!-- Managed databases -->
+    <section>
+        <h2>Managed Databases</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Host</th>
+                        <th>Port</th>
+                        <th>Username</th>
+                        <th>Registered</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for db in databases %}
+                        <tr>
+                            <td>{{ db.id }}</td>
+                            <td>{{ db.name }}</td>
+                            <td>{{ db.host }}</td>
+                            <td>{{ db.port }}</td>
+                            <td>{{ db.username }}</td>
+                            <td>{{ db.created_at }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="empty">
+                                No managed databases registered.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Recent backups and restore actions -->
+    <section>
+        <h2>Recent Backups</h2>
+
+        <div class="warning">
+            <strong>Restore warning:</strong>
+            restoring a backup can overwrite data in the target database.
+            Confirm the target carefully and keep a separate backup of
+            important data before proceeding.
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Database</th>
+                        <th>Filename</th>
+                        <th>Size (bytes)</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Restore</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for backup in backups %}
+                        <tr>
+                            <td>{{ backup.id }}</td>
+                            <td>{{ backup.database_name or "Unknown" }}</td>
+                            <td>{{ backup.filename }}</td>
+                            <td>{{ backup.file_size }}</td>
+                            <td>{{ backup.status }}</td>
+                            <td>{{ backup.created_at }}</td>
+                            <td>
+                                <form
+                                    class="action-form"
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'dashboard.restore_database_backup',
+                                        backup_id=backup.id
+                                    ) }}"
+                                    onsubmit="return confirm(
+                                        'Restoring can overwrite data in the target database. Have you backed up important data?'
+                                    );"
+                                >
+                                    <select
+                                        name="target_database"
+                                        required
+                                        aria-label="Restore target database"
+                                    >
+                                        <option value="">Select target</option>
+
+                                        {% for db in databases %}
+                                            {% if db.host|lower == restore_host|lower
+                                                  and db.port|int == restore_port|int %}
+                                                <option value="{{ db.name }}">
+                                                    {{ db.name }}
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+
+                                    <label class="confirmation">
+                                        <input
+                                            type="checkbox"
+                                            name="confirm_restore"
+                                            value="yes"
+                                            required
+                                        >
+                                        Confirm restore
+                                    </label>
+
+                                    <button
+                                        class="restore-button"
+                                        type="submit"
+                                    >
+                                        Verify &amp; Restore
+                                    </button>
+                                </form>
+
+                                <div class="action-note">
+                                    SHA-256 integrity is checked by the
+                                    restore service before importing data.
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="empty">
+                                No backup records found.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Audit activity -->
+    <section>
+        <h2>Recent Audit Activity</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for log in audit_logs %}
+                        <tr>
+                            <td>{{ log.action }}</td>
+                            <td>{{ log.description or "" }}</td>
+                            <td>{{ log.status }}</td>
+                            <td>{{ log.created_at }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="empty">
+                                No audit events found.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer>
+    VaultSync &mdash; Database Backup and Recovery
+</footer>
+</body>
+</html>
