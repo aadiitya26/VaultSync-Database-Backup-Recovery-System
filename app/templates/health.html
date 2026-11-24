@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VaultSync | System Health</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            background: #f4f6fb;
+            color: #172033;
+            min-height: 100vh;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 38px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #2563eb;
+            display: grid;
+            place-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .brand-name {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 3px;
+        }
+
+        .nav-label {
+            color: #6b7280;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 12px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            gap: 12px;
+            padding: 12px 14px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #1f2937;
+            color: white;
+        }
+
+        .nav-link.active {
+            border-left: 3px solid #3b82f6;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 25px;
+            border-top: 1px solid #273244;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #374151;
+            background: transparent;
+            border-radius: 10px;
+            color: #f87171;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #1f2937;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 32px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .title {
+            font-size: 27px;
+            font-weight: 750;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 7px;
+        }
+
+        .status {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .HEALTHY {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .WARNING {
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .CRITICAL,
+        .ERROR {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .OK {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .card,
+        .panel {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 22px;
+            box-shadow: 0 2px 8px #0f172a05;
+        }
+
+        .card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #2563eb;
+        }
+
+        .card.disk-card::before {
+            background: #0d9488;
+        }
+
+        .label {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .value {
+            font-size: 27px;
+            font-weight: 750;
+            margin-top: 12px;
+            color: #111827;
+        }
+
+        .small {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 7px;
+        }
+
+        .panel {
+            margin-bottom: 22px;
+        }
+
+        .panel h2 {
+            font-size: 17px;
+            margin-bottom: 16px;
+        }
+
+        .checks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .check {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .checkstatus {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .checkstatus.OK {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .checkstatus.WARNING {
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .checkstatus.ERROR {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .detail {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 6px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .tablewrap {
+            overflow: auto;
+            max-height: 280px;
+        }
+
+        /* Show approximately three connection-check rows before scrolling. */
+        .connection-table {
+            max-height: 185px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        .connection-table table {
+            min-width: 600px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f9fafb;
+            color: #6b7280;
+            font-size: 11px;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .footer {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 12px;
+            padding: 15px;
+        }
+
+        @media (max-width: 1000px) {
+            .checks {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .sidebar nav {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .nav-link {
+                flex: 1;
+                justify-content: center;
+                min-width: 110px;
+            }
+
+            .main {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .cards,
+            .checks {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .main {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">V</div>
+                <div>
+                    <div class="brand-name">VaultSync</div>
+                    <div class="brand-subtitle">Database Protection</div>
+                </div>
+            </div>
+
+            <div class="nav-label">Workspace</div>
+            <nav>
+                <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">
+                    Dashboard
+                </a>
+                <a class="nav-link active" href="{{ url_for('dashboard.system_health') }}">
+                    ♥ System Health
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <form action="{{ url_for('auth.logout') }}" method="POST">
+                    <button class="logout-btn" type="submit">↪ Logout</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <h1 class="title">System Health</h1>
+                    <p class="subtitle">Live overview of VaultSync's operational health.</p>
+                </div>
+                <span class="status {{ health.overall }}">{{ health.overall }}</span>
+            </header>
+
+            <div class="cards">
+                <div class="card backup-card">
+                    <div class="label">Backup Folder Usage</div>
+                    <div class="value">{{ health.backup_size }}</div>
+                    <div class="small">{{ health.backup_files }} backup-folder file(s)</div>
+                </div>
+
+                <div class="card disk-card">
+                    <div class="label">Available Disk Space</div>
+                    <div class="value">{{ health.disk_free }}</div>
+                    <div class="small">Disk capacity: {{ health.disk_total }}</div>
+                </div>
+            </div>
+
+            <section class="panel">
+                <h2>System Checks</h2>
+                <div class="checks">
+                    {% for check in health.checks %}
+                        <div class="check">
+                            <span class="checkstatus {{ check.status }}">{{ check.status }}</span>
+                            <div>
+                                <strong>{{ check.name }}</strong>
+                                <p class="detail">{{ check.detail }}</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="detail">No system checks available.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Database Connection Checks</h2>
+                <div class="tablewrap connection-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Database</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for db_check in health.database_checks %}
+                                <tr>
+                                    <td>{{ db_check.name }}</td>
+                                    <td>
+                                        <span class="checkstatus {{ db_check.status }}">
+                                            {{ db_check.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ db_check.detail }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">No database connection checks available.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Registered Databases</h2>
+                <div class="tablewrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Database</th>
+                                <th>Host</th>
+                                <th>Port</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for database in health.databases %}
+                                <tr>
+                                    <td>{{ database.name }}</td>
+                                    <td>{{ database.host }}</td>
+                                    <td>{{ database.port }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">No databases registered.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Monitor Information</h2>
+                <p class="detail">
+                    Last health report generated: {{ health.generated_at }}
+                </p>
+                <p class="detail">
+                    Latest backup timestamp: {{ health.latest_backup or 'No backup records found' }}
+                </p>
+            </section>
+
+            <footer class="footer">
+                VaultSync · Secure Database Backup and Recovery System
+            </footer>
+        </main>
+    </div>
+</body>
+</html>
