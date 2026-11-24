@@ -1,186 +1,258 @@
-# VaultSync — Database Backup and Recovery System
+# VaultSync – Database Backup and Recovery System
 
 ## 1. Project Description
 
-**(VaultSync)** is a software designed to automate database backup, recovery, and integrity verification. It helps protect critical database information from accidental deletion, system failures, corruption, and unauthorized modification.
+VaultSync is a web-based Database Backup and Recovery System designed to simplify database backup, monitoring, integrity verification, and restoration. The system provides a centralized platform for managing multiple databases, performing manual and scheduled backups, verifying backup integrity, and restoring databases when required.
 
-The system provides a centralized interface for managing database backups, monitoring backup operations, verifying backup integrity using cryptographic hashing, and restoring databases when required.
-
-It supports manual and automated backups, compressed backup storage, SHA-256 integrity verification, backup metadata management, retention processing, and audit logging.
+VaultSync ensures the reliability and security of database backups through SHA-256 integrity verification, audit logging, retention management, and concurrent operation protection. It also provides a System Health Monitoring module that checks system resources, scheduler status, metadata database connectivity, and registered database connections.
 
 ## 2. Objectives
 
-1. Automate the database backup process.
-2. Provide secure storage and management of backup files.
-3. Verify backup integrity using cryptographic hash values.
-4. Allow users to restore databases from available backups.
-5. Maintain audit logs of important system activities.
-6. Provide information about backup status and history.
-7. Reduce the risk of permanent data loss due to database failures.
+- To provide a centralized platform for managing multiple databases.
+- To automate database backup operations through scheduled backups.
+- To ensure backup integrity using SHA-256 hashing.
+- To provide secure and reliable database restoration.
+- To maintain audit logs of system activities.
+- To manage backup storage through retention policies.
+- To prevent simultaneous backup and restore operations on the same database.
+- To monitor system health, disk space, backup storage, and database connectivity.
 
 ## 3. Team Members
 
-1. Aditya Yadav
-2. Raj Somvanshi
-3. Vaishnavi Chandna
-4. Isha Negi
+- Aditya Yadav
+- Raj Somvanshi
+- Vaishnavi Chandna
+- Isha Negi
 
 ## 4. Technologies and Tools Used
 
-- **Python:** Used for backend programming and application logic.
-- **Flask:** Used to develop the web application and handle HTTP routes.
-- **MySQL:** Used as the relational database management system.
-- **MySQL `mysqldump`:** Used to create database backups.
-- **MySQL Command-Line Client (`mysql`):** Used to restore databases from SQL backup files.
-- **HTML:** Used to structure the web pages and dashboard.
-- **CSS:** Used to style the user interface.
-- **JavaScript:** Used for client-side interactivity, where implemented.
-- **SHA-256:** Used to verify backup file integrity and detect modifications.
-- **APScheduler:** Used to schedule and execute automated daily backup jobs.
-- **Werkzeug:** Used for password hashing and authentication utilities.
-- **Python Virtual Environment (`venv`):** Used to isolate project dependencies.
-- **python-dotenv:** Used to load environment variables from the `.env` file, if configured.
+- **Programming Language:** Python
+- **Web Framework:** Flask
+- **Database:** MySQL
+- **Frontend:** HTML, CSS
+- **Backup Utility:** MySQL `mysqldump`
+- **Integrity Verification:** SHA-256 Hashing
+- **Scheduling:** APScheduler
+- **Concurrency Control:** MySQL Advisory Locks
+- **Logging:** Audit Logging System
+- **Environment Management:** Python Virtual Environment
+- **Configuration Management:** python-dotenv
+- **Development Environment:** Visual Studio Code
 
 ## 5. Project Setup and Installation
 
-### Prerequisites
+### 5.1 Prerequisites
 
-- Python 
+- Python 3.10 or later
 - MySQL Server
-- MySQL command-line utilities (`mysqldump` and `mysql`)
-- PowerShell or another compatible terminal
+- MySQL Client Utilities (`mysqldump`)
+- Git
+- Visual Studio Code (optional)
 
-### Step 1: Clone or obtain the project
-
-If using Git:
+### 5.2 Clone the Repository
 
 ```bash
 git clone <repository-url>
-cd VaultSync-Database-Backup-Recovery-System
+cd VaultSync
 ```
 
-Alternatively, open the directory containing the project files.
+### 5.3 Create and Activate Virtual Environment
 
-### Step 2: Create a virtual environment
-
-```powershell
+```bash
 python -m venv venv
 ```
 
-Activate the environment in Windows PowerShell:
+Activate the virtual environment on Windows:
 
 ```powershell
-.\venv\Scripts\Activate.ps1
+venv\Scripts\activate
 ```
 
-### Step 3: Install dependencies
+### 5.4 Install Dependencies
 
-```powershell
+```bash
 pip install -r requirements.txt
 ```
 
-### Step 4: Configure environment variables
+### 5.5 Configure Environment Variables
 
-Create or configure the `.env` file according to the variables expected by `app/config.py`.
+Create a `.env` file in the project root directory and configure the required environment variables.
 
-Provide the required MySQL connection settings, application configuration, and any other required environment variables.
+Example:
 
+```env
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=your_mysql_password
+MYSQL_DATABASE=vaultsync
 
-### Step 5: Initialize the application database
+SECRET_KEY=your_secret_key
+```
 
-Ensure that MySQL Server is running and that the application database and required tables have been created according to the project's schema and setup procedure.
+### 5.6 Initialize the Metadata Database
 
-Make sure the configured database account has the permissions required for backup and restoration operations.
+Create the metadata database in MySQL and initialize the required tables using the project's schema file.
 
-### Step 6: Start the application
+The metadata database is used to store registered database information, backup records, audit logs, and other system-related data.
 
-```powershell
+### 5.7 Run the Application
+
+```bash
 python run.py
 ```
 
-Open the application in a browser:
+Open the application in your browser using the local URL provided by Flask.
 
-```text
-http://127.0.0.1:5000
+### 5.8 Run Tests
+
+Individual test modules can be executed from the project root directory.
+
+Example:
+
+```bash
+python -m tests.test_locking
 ```
-
-Log in using an existing application account.
-
-### Step 7: Configure and test
-
-1. Register the databases to be managed.
-2. Create a manual backup to verify the configuration.
-3. Check that backup files and metadata are generated.
-4. Test backup integrity verification.
-5. Test restoring a valid backup.
-6. Keep the application running for scheduled backups.
-
-**Note:** The current scheduler operates within the application process. It must remain running for scheduled jobs to execute.
 
 ## 6. Major Features and Modules
 
-### 6.1 User Authentication
+### 6.1 Authentication Module
 
-Provides login functionality and session-based access to the web application. Password hashing is handled using Werkzeug utilities.
+- Provides a login interface for accessing the system.
+- Uses session-based authentication.
+- Provides logout functionality.
+- Restricts access to protected dashboard and system health pages.
 
 ### 6.2 Database Management
 
-Allows users to register databases and retrieve information about the databases managed by VaultSync.
+- Allows users to register databases for backup management.
+- Supports management of multiple databases.
+- Displays registered databases on the dashboard.
+- Provides database search functionality.
+- Maintains database information for backup and restoration operations.
 
-### 6.3 Manual Database Backup
+### 6.3 Manual Backup
 
-Creates a database backup using `mysqldump`. Backup files are compressed and stored with timestamped filenames.
+- Allows users to initiate database backups manually.
+- Uses `mysqldump` to export database contents.
+- Compresses backup files into `.sql.gz` format.
+- Stores backup files in the designated backup directory.
+- Generates SHA-256 hashes for backup integrity verification.
+- Records backup metadata in the metadata database.
 
 ### 6.4 Automated Backup Scheduling
 
-Uses APScheduler to execute daily backup jobs at a configurable time. The scheduler retrieves registered databases and invokes the backup service for each one.
+- Uses APScheduler to perform scheduled backups.
+- Supports automatic daily backups.
+- Uses the configured scheduling timezone.
+- Automatically processes registered databases.
+- Performs scheduled operations while the application and scheduler are running.
 
 ### 6.5 Backup Integrity Verification
 
-Uses SHA-256 hashes to detect changes to backup files. The calculated hash is compared with the stored hash to identify modified or corrupted backups.
+- Uses SHA-256 hashing to verify backup file integrity.
+- Validates backup files before restoration.
+- Detects modifications or corruption in backup files.
+- Prevents restoration of corrupted or tampered backup files.
 
 ### 6.6 Database Restoration
 
-Restores databases from available backup files after checking their existence and integrity. A backup that fails integrity verification is rejected before the restoration proceeds.
+- Allows restoration of databases from stored backup files.
+- Verifies backup integrity before initiating restoration.
+- Rejects corrupted backups.
+- Handles MySQL dump compatibility considerations, including GTID-related filtering.
+- Provides confirmation before performing restoration.
+- Uses operation locking to prevent conflicting operations.
 
 ### 6.7 Backup Metadata Management
 
-Stores backup information such as the database reference, filename, file path, file size, SHA-256 hash, status, and creation timestamp.
+- Stores backup-related information in the metadata database.
+- Maintains information such as database name, backup file details, timestamps, status, and integrity hash.
+- Tracks backup history for registered databases.
+- Provides backup search functionality.
 
 ### 6.8 Audit Logging
 
-Records important application activities and their outcomes to support monitoring and troubleshooting.
+- Records important system activities.
+- Tracks backup and restoration operations.
+- Maintains records of relevant system events.
+- Provides an audit activity section on the dashboard.
+- Helps monitor and review system operations.
 
 ### 6.9 Backup Retention Management
 
-Applies the configured retention policy to remove older backup files and their associated metadata, helping manage storage usage.
+- Implements retention management for stored backup files.
+- Helps control backup storage consumption.
+- Removes eligible older backups according to configured retention rules.
+- Maintains backup storage efficiency.
 
 ### 6.10 Web Dashboard
 
-Provides a centralized interface for managing registered databases, creating backups, and accessing restoration functionality.
+- Provides a centralized interface for managing the system.
+- Displays managed databases and total backup statistics.
+- Provides database registration and manual backup operations.
+- Displays backup history and restoration controls.
+- Includes separate search functionality for managed databases and backup history.
+- Provides scrollable tables for database lists, backup history, and audit activity.
+- Uses a structured workspace layout for improved navigation.
+- Provides access to the System Health Monitoring page.
+
+### 6.11 System Health Monitoring
+
+- Monitors backup folder storage usage.
+- Displays available disk space and total disk capacity.
+- Checks backup scheduler status.
+- Checks metadata database connectivity.
+- Displays registered database inventory.
+- Provides an overall system health status.
+- Displays the latest backup timestamp.
+- Presents system health information through a dedicated interface.
+
+### 6.12 Database Connection Monitoring
+
+- Checks connectivity of registered databases.
+- Performs individual connection checks for each registered database.
+- Displays database connection status.
+- Reports connection errors when a database cannot be accessed.
+- Presents connection results in a separate scrollable table.
+- Helps identify unavailable or inaccessible databases.
+
+### 6.13 Concurrent Operation Protection
+
+- Uses MySQL Advisory Locks to prevent simultaneous backup or restore operations.
+- Rejects conflicting operations when a database is already being processed.
+- Prevents overlapping backup and restoration tasks.
+- Releases locks after operations complete or fail.
+- Helps maintain operational consistency and reliability.
 
 ## 7. Current Project Status and Progress
 
-The core backup and recovery functionality has been implemented and tested.
+The following features have been implemented and tested:
 
-### Completed and tested
-
-- User authentication and dashboard functionality.
+- Flask-based web application.
+- Session-based authentication and logout.
 - Database registration and management.
-- Manual database backups.
-- Automated daily backups using APScheduler.
-- Timestamped, compressed SQL backup files.
-- Backup metadata storage.
+- Manual database backup using `mysqldump`.
+- Compressed backup file generation.
 - SHA-256 integrity verification.
-- Rejection of a corrupted backup during restoration.
-- Successful restoration of a valid backup.
-- Backup retention processing.
-- Audit logging functionality.
+- Database restoration with integrity validation.
+- Backup metadata management.
+- Audit logging.
+- Backup retention management.
+- Automated daily backup scheduling.
+- MySQL Advisory Lock-based concurrency protection.
+- Backup and restoration error handling.
+- Lock release and cleanup handling.
+- System Health Monitoring.
+- Registered database connection monitoring.
+- Dashboard search functionality.
+- Scrollable dashboard tables.
+- Improved dashboard navigation and user interface.
 
 ### Future Work
 
-- Improving the user interface and user experience.
-- Strengthening error handling and operational reliability.
-- Expanding automated tests and recovery validation.
-- Improving deployment and scheduler reliability.
-- Implementing additional requirements identified for subsequent project phases.
+- Further improvements to the user interface.
+- Additional test cases and reliability testing.
+- Enhanced monitoring and reporting.
+- Improved deployment and configuration management.
+- Additional backup management and recovery enhancements.
