@@ -4,555 +4,1377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VaultSync Dashboard</title>
+    <title>VaultSync | Dashboard</title>
 
     <style>
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3f6fb;
-            color: #1f2937;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            background: #f4f6fb;
+            color: #172033;
+            min-height: 100vh;
         }
 
-        header {
-            background: #172554;
-            color: white;
-            padding: 22px 5%;
+        a {
+            text-decoration: none;
+            color: inherit;
         }
 
-        header h1 {
-            margin: 0 0 6px;
+        button, input, select {
+            font: inherit;
         }
 
-        header p {
-            margin: 0;
-            color: #cbd5e1;
+        .layout {
+            display: flex;
+            min-height: 100vh;
         }
 
-        header form {
-            margin-top: 14px;
+        /* Sidebar */
+
+        .sidebar {
+            width: 250px;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
         }
 
-        header button {
-            margin-left: 12px;
-            padding: 7px 12px;
-            border: 0;
-            border-radius: 5px;
-            cursor: pointer;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 38px;
         }
 
-        main {
-            max-width: 1200px;
-            margin: 28px auto;
-            padding: 0 20px;
-        }
-
-        .summary {
-            display: grid;
-            grid-template-columns: repeat(
-                auto-fit,
-                minmax(200px, 1fr)
-            );
-            gap: 16px;
-            margin-bottom: 28px;
-        }
-
-        .card,
-        section {
-            background: white;
-            padding: 20px;
+        .brand-icon {
+            width: 42px;
+            height: 42px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px #0f172a0d;
-            margin-bottom: 24px;
-        }
-
-        .card h3 {
-            margin: 0 0 12px;
-            color: #64748b;
-        }
-
-        .number {
-            font-size: 30px;
-            font-weight: bold;
-            color: #1d4ed8;
-        }
-
-        h2 {
-            margin-top: 0;
+            background: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 20px;
+            font-weight: bold;
+            color: white;
         }
 
-        .table-wrap {
+        .brand-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 3px;
+        }
+
+        .nav-label {
+            color: #6b7280;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 12px 0 12px 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            color: #9ca3af;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #1f2937;
+            color: #fff;
+        }
+
+        .nav-link.active {
+            border-left: 3px solid #3b82f6;
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 25px;
+            border-top: 1px solid #273244;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #374151;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .user-name {
+            color: #f3f4f6;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 3px;
+        }
+
+        .logout-form {
+            margin: 0;
+        }
+
+        .logout-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 14px;
+            background: transparent;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            color: #f87171;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(248, 113, 113, 0.1);
+            border-color: #ef4444;
+        }
+
+        /* Main content */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 32px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 27px;
+            font-weight: 750;
+            letter-spacing: -0.7px;
+            color: #111827;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 7px;
+        }
+
+        .system-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ecfdf5;
+            border: 1px solid #d1fae5;
+            color: #047857;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+        /* Flash messages */
+
+        .flash-container {
+            margin-bottom: 22px;
+        }
+
+        .flash {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border: 1px solid transparent;
+        }
+
+        .flash.success {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+
+        .flash.error,
+        .flash.danger {
+            background: #fef2f2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        .flash.warning {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .flash.info {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+
+        /* Summary cards */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin-bottom: 26px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.025);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+
+        .icon-blue {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .icon-purple {
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+
+        .stat-number {
+            font-size: 34px;
+            font-weight: 750;
+            color: #111827;
+            letter-spacing: -1px;
+        }
+
+        .stat-caption {
+            margin-top: 8px;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        /* Panels */
+
+        .panel {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.025);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .panel-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .panel-subtitle {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+
+        .panel-tag {
+            font-size: 11px;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Forms */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .form-grid.two {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: #fff;
+            color: #111827;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .field input::placeholder {
+            color: #9ca3af;
+        }
+
+        .form-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .primary-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 18px;
+            background: #2563eb;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .primary-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .primary-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Tables */
+
+        .table-wrapper {
+            width: 100%;
             overflow-x: auto;
+            overflow-y: auto;
+            max-height: 420px;
+            border-radius: 10px;
+        }
+
+        /* Managed Databases: show about 3 rows before scrolling */
+        .database-table-wrapper {
+            max-height: 200px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        /* Independent scroll area for Audit Activity */
+        .audit-table-wrapper {
+            max-height: 320px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .table-wrapper thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #f9fafb;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            min-width: 650px;
         }
 
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e5e7eb;
-            text-align: left;
-            overflow-wrap: anywhere;
-            vertical-align: top;
+        thead {
+            background: #f9fafb;
         }
 
         th {
-            background: #f8fafc;
+            text-align: left;
+            padding: 13px 14px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #6b7280;
+            font-weight: 700;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        .empty {
-            color: #64748b;
-        }
-
-        .flash {
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .flash.success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .flash.error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .register-form {
-            display: grid;
-            grid-template-columns: repeat(
-                auto-fit,
-                minmax(180px, 1fr)
-            );
-            gap: 14px;
-            align-items: end;
-        }
-
-        .register-form label {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-
-        .register-form input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-        }
-
-        .register-form button {
-            padding: 11px 16px;
-            border: 0;
-            border-radius: 6px;
-            background: #1d4ed8;
-            color: white;
-            cursor: pointer;
-        }
-
-        .register-form button:hover {
-            background: #1e40af;
-        }
-
-        .action-form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            min-width: 180px;
-        }
-
-        .action-form select {
-            max-width: 240px;
-            min-width: 150px;
-            width: 100%;
-            padding: 9px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            background: white;
-        }
-
-        .action-form button {
-            padding: 9px 12px;
-            border: 0;
-            border-radius: 6px;
-            background: #1d4ed8;
-            color: white;
-            cursor: pointer;
-        }
-
-        .action-form button.restore-button {
-            background: #15803d;
-        }
-
-        .action-form button:hover {
-            opacity: 0.9;
-        }
-
-        .action-form button:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-        }
-
-        .action-form .confirmation {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            font-size: 12px;
-        }
-
-        .action-note {
-            margin-top: 6px;
-            color: #64748b;
-            font-size: 12px;
-        }
-
-        .warning {
-            padding: 12px 15px;
-            margin-bottom: 16px;
-            background: #fff7ed;
-            color: #9a3412;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #64748b;
+        td {
+            padding: 15px 14px;
             font-size: 13px;
+            color: #374151;
+            border-bottom: 1px solid #f1f2f4;
+            vertical-align: middle;
         }
 
-        @media (max-width: 600px) {
-            main {
-                padding: 0 12px;
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #fafbfc;
+        }
+
+        .db-name,
+        .backup-name {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .secondary-text {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .badge-success {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .badge-failed {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .badge-neutral {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+
+        /* Backup history filters */
+        .backup-filter-bar {
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .backup-filter-bar input {
+            width: 100%; padding: 11px 13px; border: 1px solid #d1d5db;
+            border-radius: 10px; background: #fff; color: #111827; font-size: 13px;
+            outline: none;
+        }
+        .backup-filter-bar input:focus {
+            border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+        @media (max-width: 550px) { .backup-filter-bar { grid-template-columns: 1fr; } }
+
+        /* Restore */
+
+        .restore-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 200px;
+        }
+
+        .restore-form select {
+            width: 100%;
+            padding: 9px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 12px;
+            background: white;
+            color: #374151;
+        }
+
+        .restore-btn {
+            padding: 9px 12px;
+            border-radius: 8px;
+            background: #fff;
+            color: #b45309;
+            border: 1px solid #fcd34d;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .restore-btn:hover {
+            background: #fffbeb;
+        }
+
+        .restore-warning {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .restore-confirm {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .restore-confirm input {
+            margin-top: 2px;
+        }
+
+        /* Audit */
+
+        .audit-description {
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .footer {
+            padding: 12px 0 24px;
+            color: #9ca3af;
+            font-size: 12px;
+            text-align: center;
+        }
+
+
+        /* Responsive */
+
+        @media (max-width: 1100px) {
+            .sidebar {
+                width: 220px;
             }
 
-            section {
-                padding: 14px;
+            .main {
+                padding: 24px;
             }
 
-            header {
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 800px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
                 padding: 20px;
+            }
+
+            .brand {
+                margin-bottom: 20px;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .sidebar nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .nav-link {
+                margin-bottom: 0;
+                flex: 1;
+                min-width: 110px;
+                justify-content: center;
+            }
+
+            .sidebar-bottom {
+                margin-top: 20px;
+                padding-top: 20px;
+            }
+
+            .main {
+                padding: 22px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 550px) {
+            .main {
+                padding: 16px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .page-title {
+                font-size: 23px;
+            }
+
+            .stats-grid,
+            .form-grid,
+            .form-grid.two {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            .panel-header {
+                flex-direction: column;
+            }
+
+            .form-footer {
+                justify-content: stretch;
+            }
+
+            .form-footer .primary-btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 
 <body>
-<header>
-    <h1>VaultSync</h1>
-    <p>Secure Database Backup and Recovery System</p>
 
-    <form method="POST" action="{{ url_for('auth.logout') }}">
-        <span>
-            Signed in as {{ session.get('username', 'Administrator') }}
-        </span>
-        <button type="submit">Log out</button>
-    </form>
-</header>
+<div class="layout">
 
-<main>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <div class="flash {{ category }}" role="status">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endwith %}
+    <!-- Sidebar -->
+    <aside class="sidebar">
 
-    <!-- Register a database -->
-    <section>
-        <h2>Register Database</h2>
-        <p class="empty">
-            Register an existing MySQL database for VaultSync backups.
-            The application verifies that the database exists first.
-        </p>
-
-        <form
-            class="register-form"
-            method="POST"
-            action="{{ url_for('dashboard.register_database') }}"
-        >
+        <div class="brand">
+            <div class="brand-icon">V</div>
             <div>
-                <label for="database-name">Database name</label>
-                <input
-                    id="database-name"
-                    type="text"
-                    name="name"
-                    required
-                    maxlength="255"
-                    placeholder="e.g. company_db"
-                >
+                <div class="brand-name">VaultSync</div>
+                <div class="brand-subtitle">Database Protection</div>
             </div>
-
-            <div>
-                <label for="database-host">MySQL host</label>
-                <input
-                    id="database-host"
-                    type="text"
-                    name="host"
-                    required
-                    maxlength="255"
-                    value="localhost"
-                >
-            </div>
-
-            <div>
-                <label for="database-port">MySQL port</label>
-                <input
-                    id="database-port"
-                    type="number"
-                    name="port"
-                    min="1"
-                    max="65535"
-                    required
-                    value="3306"
-                >
-            </div>
-
-            <div>
-                <button type="submit">Validate and Register</button>
-            </div>
-        </form>
-    </section>
-
-    <!-- Dashboard summary -->
-    <div class="summary">
-        <div class="card">
-            <h3>Managed Databases</h3>
-            <div class="number">{{ total_databases }}</div>
         </div>
 
-        <div class="card">
-            <h3>Total Backups</h3>
-            <div class="number">{{ total_backups }}</div>
-        </div>
+        <div class="nav-label">Workspace</div>
 
-        <div class="card">
-            <h3>Verified Backups</h3>
-            <div class="number">{{ verified_backups }}</div>
-        </div>
-    </div>
+        <nav>
+            <a href="#overview" class="nav-link active">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
 
-    <!-- Custom backup -->
-    <section>
-        <h2>Custom Backup</h2>
-        <p class="empty">
-            Create a backup immediately without waiting for the scheduled
-            backup. VaultSync saves backup metadata and its SHA-256 hash,
-            records the operation, and applies the retention policy.
-        </p>
+            <a href="#register" class="nav-link">
+                <span class="nav-icon">＋</span>
+                Register Database
+            </a>
 
-        {% if databases %}
-            <form
-                class="action-form"
-                method="POST"
-                action="{{ url_for('dashboard.create_database_backup') }}"
-            >
-                <select name="database_name" required>
-                    <option value="">Select a database</option>
-                    {% for db in databases %}
-                        <option value="{{ db.name }}">{{ db.name }}</option>
-                    {% endfor %}
-                </select>
+            <a href="#backup" class="nav-link">
+                <span class="nav-icon">↥</span>
+                Create Backup
+            </a>
 
-                <button type="submit">Run Backup Now</button>
+            <a href="#databases" class="nav-link">
+                <span class="nav-icon">▤</span>
+                Databases
+            </a>
+
+            <a href="#backups" class="nav-link">
+                <span class="nav-icon">◷</span>
+                Backup History
+            </a>
+
+            <a href="#audit" class="nav-link">
+                <span class="nav-icon">☷</span>
+                Audit Activity
+            </a>
+
+            <a href="{{ url_for('dashboard.system_health') }}" class="nav-link">
+                <span class="nav-icon">♥</span>
+                System Health
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="user-info">
+                <div class="user-avatar">A</div>
+
+                <div>
+                    <div class="user-name">
+                        {{ session.get('username', 'Administrator') }}
+                    </div>
+                    <div class="user-role">VaultSync Administrator</div>
+                </div>
+            </div>
+
+            <!-- Logout uses POST -->
+            <form action="{{ url_for('auth.logout') }}"
+                  method="POST"
+                  class="logout-form">
+
+                <button type="submit" class="logout-btn">
+                    <span>↪</span> Logout
+                </button>
+
             </form>
-        {% else %}
-            <p class="empty">
-                Register a database before creating a custom backup.
-            </p>
-        {% endif %}
-    </section>
 
-    <!-- Managed databases -->
-    <section>
-        <h2>Managed Databases</h2>
+        </div>
 
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Host</th>
-                        <th>Port</th>
-                        <th>Username</th>
-                        <th>Registered</th>
-                    </tr>
-                </thead>
+    </aside>
 
-                <tbody>
-                    {% for db in databases %}
-                        <tr>
-                            <td>{{ db.id }}</td>
-                            <td>{{ db.name }}</td>
-                            <td>{{ db.host }}</td>
-                            <td>{{ db.port }}</td>
-                            <td>{{ db.username }}</td>
-                            <td>{{ db.created_at }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="empty">
-                                No managed databases registered.
-                            </td>
-                        </tr>
+    <!-- Main -->
+    <main class="main">
+
+        <header class="topbar" id="overview">
+
+            <div>
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-subtitle">
+                    Manage your databases, backups and recovery operations.
+                </p>
+            </div>
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+                System Active
+            </div>
+
+        </header>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">
+                            {{ message }}
+                        </div>
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
+                </div>
+            {% endif %}
+        {% endwith %}
 
-    <!-- Recent backups and restore actions -->
-    <section>
-        <h2>Recent Backups</h2>
+        <!-- Two summary cards -->
+        <section class="stats-grid">
 
-        <div class="warning">
-            <strong>Restore warning:</strong>
-            restoring a backup can overwrite data in the target database.
-            Confirm the target carefully and keep a separate backup of
-            important data before proceeding.
-        </div>
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Managed Databases</span>
+                    <div class="stat-icon icon-blue">▤</div>
+                </div>
 
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Database</th>
-                        <th>Filename</th>
-                        <th>Size (bytes)</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Restore</th>
-                    </tr>
-                </thead>
+                <div class="stat-number">{{ total_databases }}</div>
 
-                <tbody>
-                    {% for backup in backups %}
+                <div class="stat-caption">
+                    Databases registered in VaultSync
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Total Backups</span>
+                    <div class="stat-icon icon-purple">↥</div>
+                </div>
+
+                <div class="stat-number">{{ total_backups }}</div>
+
+                <div class="stat-caption">
+                    Backup records stored
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Register database -->
+        <section class="panel" id="register">
+
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Register Database</h2>
+                    <p class="panel-subtitle">
+                        Add a database to your VaultSync workspace.
+                    </p>
+                </div>
+
+                <span class="panel-tag">Database Management</span>
+            </div>
+
+            <form action="{{ url_for('dashboard.register_database') }}"
+                  method="POST">
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label for="db_name">Database Name</label>
+                        <input type="text"
+                               id="db_name"
+                               name="name"
+                               placeholder="Enter database name"
+                               required>
+                    </div>
+
+                    <div class="field">
+                        <label for="db_host">Host</label>
+                        <input type="text"
+                               id="db_host"
+                               name="host"
+                               placeholder="localhost"
+                               value="localhost"
+                               required>
+                    </div>
+
+                    <div class="field">
+                        <label for="db_port">Port</label>
+                        <input type="number"
+                               id="db_port"
+                               name="port"
+                               placeholder="3306"
+                               value="3306"
+                               required>
+                    </div>
+
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="primary-btn">
+                        ＋ Register Database
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+        <!-- Manual backup -->
+        <section class="panel" id="backup">
+
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Create Database Backup</h2>
+                    <p class="panel-subtitle">
+                        Generate a compressed backup of a managed database.
+                    </p>
+                </div>
+
+                <span class="panel-tag">Manual Backup</span>
+            </div>
+
+            <form action="{{ url_for('dashboard.create_database_backup') }}"
+                  method="POST">
+
+                <div class="form-grid two">
+
+                    <div class="field">
+                        <label for="backup_database">
+                            Select Database
+                        </label>
+
+                        <select id="backup_database"
+                                name="database_name"
+                                required>
+
+                            <option value="">Choose a database</option>
+
+                            {% for database in databases %}
+                                <option value="{{ database.name }}">
+                                    {{ database.name }}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="primary-btn">
+                        ↥ Create Backup
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+        <!-- Managed databases -->
+        <section class="panel" id="databases">
+
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Managed Databases</h2>
+                    <p class="panel-subtitle">
+                        Registered databases available for backup and recovery.
+                    </p>
+                </div>
+
+                <span class="panel-tag">
+                    {{ total_databases }} Databases
+                </span>
+            </div>
+
+            <div class="backup-filter-bar" style="grid-template-columns: 1fr;">
+                <input type="search" id="databaseSearch" placeholder="Search managed databases..." aria-label="Search managed databases">
+            </div>
+
+            <div class="table-wrapper database-table-wrapper">
+
+                <table id="managedDatabaseTable">
+
+                    <thead>
                         <tr>
-                            <td>{{ backup.id }}</td>
-                            <td>{{ backup.database_name or "Unknown" }}</td>
-                            <td>{{ backup.filename }}</td>
-                            <td>{{ backup.file_size }}</td>
-                            <td>{{ backup.status }}</td>
-                            <td>{{ backup.created_at }}</td>
-                            <td>
-                                <form
-                                    class="action-form"
-                                    method="POST"
-                                    action="{{ url_for(
-                                        'dashboard.restore_database_backup',
-                                        backup_id=backup.id
-                                    ) }}"
-                                    onsubmit="return confirm(
-                                        'Restoring can overwrite data in the target database. Have you backed up important data?'
-                                    );"
-                                >
-                                    <select
-                                        name="target_database"
-                                        required
-                                        aria-label="Restore target database"
-                                    >
-                                        <option value="">Select target</option>
-
-                                        {% for db in databases %}
-                                            {% if db.host|lower == restore_host|lower
-                                                  and db.port|int == restore_port|int %}
-                                                <option value="{{ db.name }}">
-                                                    {{ db.name }}
-                                                </option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </select>
-
-                                    <label class="confirmation">
-                                        <input
-                                            type="checkbox"
-                                            name="confirm_restore"
-                                            value="yes"
-                                            required
-                                        >
-                                        Confirm restore
-                                    </label>
-
-                                    <button
-                                        class="restore-button"
-                                        type="submit"
-                                    >
-                                        Verify &amp; Restore
-                                    </button>
-                                </form>
-
-                                <div class="action-note">
-                                    SHA-256 integrity is checked by the
-                                    restore service before importing data.
-                                </div>
-                            </td>
+                            <th>Database</th>
+                            <th>Host</th>
+                            <th>Port</th>
+                            <th>Username</th>
+                            <th>Registered</th>
                         </tr>
-                    {% else %}
+                    </thead>
+
+                    <tbody>
+
+                        {% for database in databases %}
+
+                            <tr>
+                                <td>
+                                    <div class="db-name">
+                                        {{ database.name }}
+                                    </div>
+                                </td>
+
+                                <td>{{ database.host }}</td>
+
+                                <td>{{ database.port }}</td>
+
+                                <td>{{ database.username }}</td>
+
+                                <td>
+                                    {{ database.created_at }}
+                                </td>
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    No databases registered yet.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- Backup history and restore -->
+        <section class="panel" id="backups">
+
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Backup History</h2>
+                    <p class="panel-subtitle">
+                        Review stored backups and restore a backup when required.
+                    </p>
+                </div>
+
+                <span class="panel-tag">Backup & Recovery</span>
+            </div>
+
+            <div class="restore-warning" style="margin-bottom: 20px;">
+                <strong>Restore Warning:</strong>
+                Restoring a backup may overwrite data in the target database.
+                VaultSync performs integrity verification using SHA-256
+                before allowing the restoration process.
+            </div>
+
+            <div class="backup-filter-bar">
+                <input type="search" id="backupSearch" placeholder="Search backup database or filename..." aria-label="Search backup files">
+            </div>
+
+            <div class="table-wrapper">
+
+                <table id="backupHistoryTable">
+
+                    <thead>
                         <tr>
-                            <td colspan="7" class="empty">
-                                No backup records found.
-                            </td>
+                            <th>Database</th>
+                            <th>Backup File</th>
+                            <th>Size</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Restore</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
+                    </thead>
 
-    <!-- Audit activity -->
-    <section>
-        <h2>Recent Audit Activity</h2>
+                    <tbody>
 
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Action</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
+                        {% for backup in backups %}
 
-                <tbody>
-                    {% for log in audit_logs %}
+                            <tr>
+
+                                <td>
+                                    <div class="db-name">
+                                        {{ backup.database_name }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="backup-name">
+                                        {{ backup.filename }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {{ backup.file_size }}
+                                </td>
+
+                                <td>
+                                    {% if backup.status %}
+                                        {% if backup.status|lower in
+                                            ['verified', 'success', 'successful', 'completed'] %}
+                                            <span class="badge badge-success">
+                                                {{ backup.status }}
+                                            </span>
+                                        {% elif backup.status|lower in
+                                            ['failed', 'failure', 'corrupted'] %}
+                                            <span class="badge badge-failed">
+                                                {{ backup.status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-neutral">
+                                                {{ backup.status }}
+                                            </span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge badge-neutral">
+                                            Unknown
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ backup.created_at }}
+                                </td>
+
+                                <td>
+
+                                    <form class="restore-form"
+                                          action="{{ url_for('dashboard.restore_database_backup', backup_id=backup.id) }}"
+                                          method="POST">
+
+                                        <select name="target_database"
+                                                required>
+
+                                            <option value="">
+                                                Select target
+                                            </option>
+
+                                            {% for database in databases %}
+
+                                                {% if database.host == restore_host
+                                                      and database.port|string == restore_port|string %}
+
+                                                    <option value="{{ database.name }}">
+                                                        {{ database.name }}
+                                                    </option>
+
+                                                {% endif %}
+
+                                            {% endfor %}
+
+                                        </select>
+
+                                        <label class="restore-confirm">
+                                            <input type="checkbox"
+                                                   name="confirm_restore"
+                                                   value="yes"
+                                                   required>
+
+                                            <span>
+                                                I confirm that I want to restore
+                                                this backup.
+                                            </span>
+                                        </label>
+
+                                        <button type="submit"
+                                                class="restore-btn"
+                                                onclick="return confirm('Are you sure you want to restore this backup? This may overwrite the target database.');">
+
+                                            ↻ Restore
+
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    No backups available yet.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- Audit activity -->
+        <section class="panel" id="audit">
+
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Audit Activity</h2>
+                    <p class="panel-subtitle">
+                        Recent system operations and recorded activity.
+                    </p>
+                </div>
+
+                <span class="panel-tag">Audit Logging</span>
+            </div>
+
+            <div class="table-wrapper audit-table-wrapper">
+
+                <table>
+
+                    <thead>
                         <tr>
-                            <td>{{ log.action }}</td>
-                            <td>{{ log.description or "" }}</td>
-                            <td>{{ log.status }}</td>
-                            <td>{{ log.created_at }}</td>
+                            <th>Action</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Timestamp</th>
                         </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4" class="empty">
-                                No audit events found.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-</main>
+                    </thead>
 
-<footer>
-    VaultSync &mdash; Database Backup and Recovery
-</footer>
+                    <tbody>
+
+                        {% for log in audit_logs %}
+
+                            <tr>
+
+                                <td>
+                                    <div class="db-name">
+                                        {{ log.action }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="audit-description">
+                                        {{ log.description }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if log.status %}
+                                        {% if log.status|upper in
+                                            ['SUCCESS', 'COMPLETED', 'VERIFIED'] %}
+                                            <span class="badge badge-success">
+                                                {{ log.status }}
+                                            </span>
+                                        {% elif log.status|upper in
+                                            ['FAILED', 'ERROR'] %}
+                                            <span class="badge badge-failed">
+                                                {{ log.status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-neutral">
+                                                {{ log.status }}
+                                            </span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge badge-neutral">
+                                            Unknown
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ log.created_at }}
+                                </td>
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="4" class="empty-state">
+                                    No audit activity recorded.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <footer class="footer">
+            VaultSync · Secure Database Backup and Recovery System
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+(function () {
+    function setupTableSearch(tableId, searchId, columnCount, label) {
+        const table = document.getElementById(tableId);
+        const search = document.getElementById(searchId);
+        if (!table || !search) return;
+
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.querySelector('.empty-state'));
+        const noResults = document.createElement('tr');
+        noResults.innerHTML = `<td colspan="${columnCount}" class="empty-state">No ${label} match your search.</td>`;
+        noResults.style.display = 'none';
+        tbody.appendChild(noResults);
+
+        function render() {
+            const term = search.value.trim().toLowerCase();
+            let matches = 0;
+            rows.forEach(row => {
+                const visible = row.innerText.toLowerCase().includes(term);
+                row.style.display = visible ? '' : 'none';
+                if (visible) matches++;
+            });
+            noResults.style.display = matches === 0 ? '' : 'none';
+        }
+        search.addEventListener('input', render);
+        render();
+    }
+
+    setupTableSearch('managedDatabaseTable', 'databaseSearch', 5, 'databases');
+    setupTableSearch('backupHistoryTable', 'backupSearch', 6, 'backups');
+})();
+</script>
+
 </body>
 </html>

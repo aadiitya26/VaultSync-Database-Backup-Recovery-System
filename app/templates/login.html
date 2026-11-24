@@ -3,68 +3,328 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>VaultSync Admin Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaultSync | Login</title>
+
     <style>
-        body {
+        * {
             margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            background: #f3f6fb;
-            font-family: Arial, sans-serif;
-            color: #1f2937;
-        }
-        .login-card {
-            width: min(360px, calc(100% - 48px));
-            padding: 28px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px #0f172a12;
-        }
-        h1 { margin-top: 0; color: #172554; }
-        label { display: block; margin: 16px 0 6px; }
-        input {
-            width: 100%;
+            padding: 0;
             box-sizing: border-box;
-            padding: 11px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
         }
-        button {
+
+        body {
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f6fb;
+            color: #111827;
+            padding: 24px;
+        }
+
+        .login-container {
             width: 100%;
-            margin-top: 22px;
-            padding: 12px;
-            border: 0;
-            border-radius: 6px;
-            background: #1d4ed8;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
+            max-width: 440px;
         }
-        .message { margin: 12px 0; color: #b91c1c; }
+
+        .brand {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 30px;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+        }
+
+        .brand-name {
+            font-size: 26px;
+            font-weight: 750;
+            color: #111827;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .login-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 36px;
+            box-shadow: 0 15px 45px rgba(15, 23, 42, 0.06);
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .heading h1 {
+            font-size: 24px;
+            font-weight: 750;
+            color: #111827;
+            letter-spacing: -0.5px;
+        }
+
+        .heading p {
+            margin-top: 9px;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 650;
+            color: #374151;
+            margin-bottom: 9px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 11px;
+            font-size: 14px;
+            color: #111827;
+            background: #fff;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .field input::placeholder {
+            color: #9ca3af;
+        }
+
+        .field input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+            background: #2563eb;
+            border: none;
+            border-radius: 11px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .login-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 7px 18px rgba(37, 99, 235, 0.18);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .flash-container {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 13px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+        }
+
+        .flash.success {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+
+        .flash.error,
+        .flash.danger {
+            background: #fef2f2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        .flash.warning {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .flash.info {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .security-icon {
+            color: #059669;
+            font-size: 15px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #9ca3af;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 28px 22px;
+            }
+
+            .brand-name {
+                font-size: 23px;
+            }
+
+            .heading h1 {
+                font-size: 22px;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <main class="login-card">
-        <h1>VaultSync</h1>
-        <p>Administrator sign in</p>
 
-        {% for category, message in get_flashed_messages(with_categories=true) %}
-            <p class="message">{{ message }}</p>
-        {% endfor %}
+    <div class="login-container">
 
-        <form method="POST" action="{{ url_for('auth.login') }}">
-            <label for="username">Username</label>
-            <input id="username" name="username"
-                   autocomplete="username" required>
+        <!-- Brand -->
+        <div class="brand">
 
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password"
-                   autocomplete="current-password" required>
+            <div class="brand-icon">
+                V
+            </div>
 
-            <button type="submit">Log in</button>
-        </form>
-    </main>
+            <div>
+                <div class="brand-name">VaultSync</div>
+                <div class="brand-subtitle">
+                    Secure Database Backup & Recovery
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Login card -->
+        <div class="login-card">
+
+            <div class="heading">
+                <h1>Welcome back</h1>
+
+                <p>
+                    Sign in to access your database backup
+                    and recovery workspace.
+                </p>
+            </div>
+
+            <!-- Flash messages -->
+            <div class="flash-container">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+            </div>
+
+            <!-- Login form -->
+            <form action="{{ url_for('auth.login') }}"
+                  method="POST">
+
+                <div class="field">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input type="text"
+                           id="username"
+                           name="username"
+                           placeholder="Enter your username"
+                           autocomplete="username"
+                           required
+                           autofocus>
+
+                </div>
+
+                <div class="field">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="Enter your password"
+                           autocomplete="current-password"
+                           required>
+
+                </div>
+
+                <button type="submit" class="login-btn">
+                    Sign In
+                </button>
+
+            </form>
+
+            <div class="security-note">
+                <span class="security-icon">🔒</span>
+                <span>Secure access to your VaultSync workspace</span>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            VaultSync · Secure Database Backup and Recovery System
+        </div>
+
+    </div>
+
 </body>
 </html>
