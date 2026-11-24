@@ -1,4 +1,3 @@
-
 import logging
 
 from flask import (
@@ -25,6 +24,14 @@ from app.services.database_service import validate_database_exists
 logger = logging.getLogger(__name__)
 
 dashboard_bp = Blueprint("dashboard", __name__)
+
+
+@dashboard_bp.route("/system-health")
+@login_required
+def system_health():
+    from app.services.health_service import collect_system_health
+    health = collect_system_health()
+    return render_template("health.html", health=health)
 
 
 @dashboard_bp.route("/dashboard")
