@@ -7,163 +7,175 @@ from app.config import Config
 from app.models.database import get_connection
 from app.services.integrity_service import calculate_sha256
 from app.services.audit_service import log_action
+from app.services.operation_lock_service import database_operation_lock
 
 
 def restore_backup(backup_id, target_database):
     """
     Restore a compressed MySQL backup into the specified database.
 
-    The backup is verified using SHA-256 before restoration.
-    All restore failures are recorded in the audit log.
+    The target database is locked during the entire restore
+    workflow. SHA-256 integrity is checked before restoration.
     """
 
     backup = None
     temporary_sql_path = None
 
     try:
-        # 1. Get backup metadata
-        connection = get_connection()
+        # Acquire a lock on the target database.
+        with database_operation_lock(target_database):
 
-        try:
-            cursor = connection.cursor(dictionary=True)
+            try:
+                # 1. Get backup metadata.
+                connection = get_connection()
 
-            query = """
-                SELECT
-                    id,
-                    filename,
-                    file_path,
-                    sha256_hash,
-                    status
-                FROM backups
-                WHERE id = %s
-            """
+                try:
+                    cursor = connection.cursor(dictionary=True)
 
-            cursor.execute(query, (backup_id,))
+                    query = """
+                        SELECT
+                            id,
+                            filename,
+                            file_path,
+                            sha256_hash,
+                            status
+                        FROM backups
+                        WHERE id = %s
+                    """
 
-            backup = cursor.fetchone()
+                    cursor.execute(query, (backup_id,))
+                    backup = cursor.fetchone()
 
-        finally:
-            cursor.close()
-            connection.close()
+                finally:
+                    cursor.close()
+                    connection.close()
 
-        # 2. Check whether backup exists
-        if not backup:
-            raise ValueError(
-                f"Backup with ID {backup_id} not found."
-            )
+                # 2. Check whether backup exists.
+                if not backup:
+                    raise ValueError(
+                        f"Backup with ID {backup_id} not found."
+                    )
 
-        # 3. Check whether backup file exists
-        if not os.path.exists(backup["file_path"]):
-            raise FileNotFoundError(
-                f"Backup file not found: {backup['file_path']}"
-            )
+                # 3. Check whether backup file exists.
+                if not os.path.exists(backup["file_path"]):
+                    raise FileNotFoundError(
+                        f"Backup file not found: "
+                        f"{backup['file_path']}"
+                    )
 
-        # 4. Verify backup integrity before restore
-        current_hash = calculate_sha256(
-            backup["file_path"]
-        )
+                # 4. Verify backup integrity before restore.
+                current_hash = calculate_sha256(
+                    backup["file_path"]
+                )
 
-        if current_hash != backup["sha256_hash"]:
-            raise ValueError(
-                "Backup integrity verification failed. "
-                "Restore aborted."
-            )
+                if current_hash != backup["sha256_hash"]:
+                    raise ValueError(
+                        "Backup integrity verification failed. "
+                        "Restore aborted."
+                    )
 
-        # 5. Create temporary SQL file
-        temporary_sql = tempfile.NamedTemporaryFile(
-            suffix=".sql",
-            delete=False
-        )
+                # 5. Create temporary SQL file.
+                temporary_sql = tempfile.NamedTemporaryFile(
+                    suffix=".sql",
+                    delete=False,
+                )
 
-        temporary_sql_path = temporary_sql.name
-        temporary_sql.close()
+                temporary_sql_path = temporary_sql.name
+                temporary_sql.close()
 
-        # 6. Decompress the .sql.gz backup
-        with gzip.open(
-            backup["file_path"],
-            "rt",
-            encoding="utf-8"
-        ) as compressed_file:
+                # 6. Decompress the .sql.gz backup.
+                with gzip.open(
+                    backup["file_path"],
+                    "rt",
+                    encoding="utf-8",
+                ) as compressed_file:
+                    sql_content = compressed_file.read()
 
-            sql_content = compressed_file.read()
+                # 7. Remove GTID_PURGED statements.
+                lines = sql_content.splitlines()
 
-        # 7. Remove GTID_PURGED statements
-        #    to avoid GTID conflicts during restore.
-        lines = sql_content.splitlines()
+                filtered_lines = [
+                    line
+                    for line in lines
+                    if "GTID_PURGED" not in line
+                ]
 
-        filtered_lines = [
-            line
-            for line in lines
-            if "GTID_PURGED" not in line
-        ]
+                # 8. Write cleaned SQL to temporary file.
+                with open(
+                    temporary_sql_path,
+                    "w",
+                    encoding="utf-8",
+                ) as sql_file:
+                    sql_file.write(
+                        "\n".join(filtered_lines)
+                    )
 
-        # 8. Write cleaned SQL to temporary file
-        with open(
-            temporary_sql_path,
-            "w",
-            encoding="utf-8"
-        ) as sql_file:
+                # 9. Restore using MySQL client.
+                command = [
+                    "mysql",
+                    "-h", Config.MYSQL_HOST,
+                    "-P", str(Config.MYSQL_PORT),
+                    "-u", Config.MYSQL_USER,
+                    target_database,
+                ]
 
-            sql_file.write(
-                "\n".join(filtered_lines)
-            )
+                # Keep password outside the command.
+                env = os.environ.copy()
+                env["MYSQL_PWD"] = Config.MYSQL_PASSWORD
 
-        # 9. Restore using MySQL client
-        command = [
-            "mysql",
-            "-h", Config.MYSQL_HOST,
-            "-P", str(Config.MYSQL_PORT),
-            "-u", Config.MYSQL_USER,
-            target_database
-        ]
+                with open(
+                    temporary_sql_path,
+                    "r",
+                    encoding="utf-8",
+                ) as sql_file:
 
-        # Keep password outside the command
-        env = os.environ.copy()
-        env["MYSQL_PWD"] = Config.MYSQL_PASSWORD
+                    result = subprocess.run(
+                        command,
+                        stdin=sql_file,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        env=env,
+                    )
 
-        with open(
-            temporary_sql_path,
-            "r",
-            encoding="utf-8"
-        ) as sql_file:
+                # 10. Check restore result.
+                if result.returncode != 0:
+                    raise RuntimeError(
+                        f"Restore failed: "
+                        f"{result.stderr.strip()}"
+                    )
 
-            result = subprocess.run(
-                command,
-                stdin=sql_file,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=env
-            )
+                # 11. Log successful restore.
+                log_action(
+                    action="BACKUP_RESTORED",
+                    description=(
+                        f"Backup restored successfully: "
+                        f"{backup['filename']} "
+                        f"to database '{target_database}'"
+                    ),
+                    status="SUCCESS",
+                )
 
-        # 10. Check restore result
-        if result.returncode != 0:
-            raise RuntimeError(
-                f"Restore failed: {result.stderr.strip()}"
-            )
+                # 12. Return restore information.
+                return {
+                    "backup_id": backup_id,
+                    "filename": backup["filename"],
+                    "target_database": target_database,
+                    "status": "RESTORED",
+                }
 
-        # 11. Log successful restore
-        log_action(
-            action="BACKUP_RESTORED",
-            description=(
-                f"Backup restored successfully: "
-                f"{backup['filename']} "
-                f"to database '{target_database}'"
-            ),
-            status="SUCCESS"
-        )
-
-        # 12. Return restore information
-        return {
-            "backup_id": backup_id,
-            "filename": backup["filename"],
-            "target_database": target_database,
-            "status": "RESTORED"
-        }
+            finally:
+                # Clean up the temporary SQL file while
+                # the database lock is still held.
+                if (
+                    temporary_sql_path
+                    and os.path.exists(temporary_sql_path)
+                ):
+                    os.remove(temporary_sql_path)
 
     except Exception as e:
 
-        # Determine a useful description
+        # Determine a useful failure description.
         if backup:
             description = (
                 f"Restore failed for backup "
@@ -177,25 +189,16 @@ def restore_backup(backup_id, target_database):
                 f"to database '{target_database}': {str(e)}"
             )
 
-        # Record failed restore attempt
+        # Record failed restore attempt.
         try:
             log_action(
                 action="BACKUP_RESTORE_FAILED",
                 description=description,
-                status="FAILED"
+                status="FAILED",
             )
         except Exception:
-            # Do not hide the original restore error
+            # Do not hide the original restore error.
             pass
 
-        # Re-raise the original error
+        # Re-raise the original restore error.
         raise
-
-    finally:
-
-        # Remove temporary SQL file
-        if (
-            temporary_sql_path
-            and os.path.exists(temporary_sql_path)
-        ):
-            os.remove(temporary_sql_path)
